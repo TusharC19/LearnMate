@@ -3,56 +3,43 @@ import CompanionCard from "@/components/CompanionCard";
 import CompanionsList from "@/components/CompanionsList";
 import CTA from "@/components/CTA";
 import {recentSessions} from "@/constants";
-// import {getAllCompanions, getRecentSessions} from "@/lib/actions/companion.actions";
+import {getAllCompanions, getRecentSessions} from "@/lib/actions/companion.action";
 import {getSubjectColor} from "@/lib/utils";
 
-
-const Page = () => {
+const Page = async () => {
+    const companions =  await getAllCompanions({limit:3})
+    const recentSessionsCompanions = await getRecentSessions({limit:10})
   return (
-    <main>
-    <h1 className="text-2xl">Popular Companions</h1>
-      <section className="home-section">
-        <CompanionCard
-        id="456"
-        name="jfj"
-        topic="NLP"
-        subject="English"
-        duration={45}
-        color="#ffda6e"
-        />
-        <CompanionCard
-        id="457"
-        name="abc"
-        topic="Machine Learning"
-        subject="Math"
-        duration={30}
-        color="#a1cfff"
-        />
-        <CompanionCard
-        id="458"
-        name="xyz"
-        topic="Data Science"
-        subject="Science"
-        duration={60}
-        color="#ff9a9a"
-        />
+    <div>
+        <h1>Popular Companions</h1>
 
-      </section>
+        <section className="home-section">
+            {companions.map((companion) => (
 
-      <section className="home-section">
-        <CompanionsList
+
+                <CompanionCard
+                    key = {companion.id}
+                    {...companion}
+                    color = {getSubjectColor(companion.subject)}
+                />
+            ))}
+
+
+
+        </section>
+
+        <section className="home-section">
+            <CompanionsList
                 title="Recently completed sessions"
-                // companions={recentSessionsCompanions}
+                companions={recentSessionsCompanions}
                 classNames="w-2/3 max-lg:w-full"
 
             />
-        <CTA/>
-      </section>
-   
-  
+            {/*call to action components*/}
+            <CTA/>
+        </section>
 
-
-    </main>
+    </div>
   )
 }
 
