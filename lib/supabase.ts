@@ -1,0 +1,17 @@
+import { access } from "fs"
+import {createClient} from "@supabase/supabase-js"
+import {auth} from "@clerk/nextjs/server"
+
+export const createSupabaseClient = () => {
+    return createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,{
+            async accessToken(){
+                // Logic to retrieve a new access token
+                return ((await auth( )).getToken());
+
+                // 1:49 continue
+            }
+        }
+    )
+}
