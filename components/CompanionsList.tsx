@@ -19,10 +19,10 @@ interface CompanionsListProps {
 }
 
 const CompanionsList = ({title,companions,classNames}: CompanionsListProps) => {
-    // ensure unique companions by id to avoid duplicate React keys
-    const uniqueCompanions = Array.from(
-    new Map((companions ?? []).map((c) => [c.id, c])).values()
-    );
+    // // ensure unique companions by id to avoid duplicate React keys
+    // const uniqueCompanions = Array.from(
+    // new Map((companions ?? []).map((c) => [c.id, c])).values()
+    // );
   return (
     <article className={cn("companions-list", classNames)}>
          <h2 className="font-bold text-3xl">{title}</h2>
