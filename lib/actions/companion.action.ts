@@ -74,12 +74,13 @@ export const addToSessionHistory = async (companionId : string) =>{
 
 export const getRecentSessions = async (limit?: { limit: number }) =>{
     const supabase = createSupabaseClient();
+    const actualLimit = limit?.limit ?? 10;
     const {data,error} = await supabase
     .from('session_history')
     .select(`companions:companion_id (*)`)
     .order('created_at', {ascending:false})
-    .limit(limit)
-
+    .limit(actualLimit)
+    
     if(error) throw new Error(error.message);
 
     return data.map(({companions})  => companions);
@@ -113,7 +114,38 @@ export const getUserCompanions = async (userId:string,limit=10) =>{
     return data.map(({companions})  => companions);
 }
 
+export const newCompanionPermissions = async() =>{
+    const {userId, has} = await auth();
+    const supabase = createSupabaseClient();
 
+    let limit = 0;
+
+    if(has({plan:'pro'})){
+        return true;
+    }
+    else if(has({feature:"3_companion_limit"})){
+        limit = 3;
+    }
+    else if(has({feature:"10_companion_limit"})){
+        limit =10;
+    }
+
+    const { data, error} = await supabase
+        .from('companions')
+        .select('id', {count:'exact'})
+        .eq('author', userId);
+
+    if(error) throw new Error(error.message);
+
+    const companionCount = data.length;
+
+    if(companionCount >= limit){
+        return false;
+    }
+    else{
+        return true;
+    }
+}
 
 
 
