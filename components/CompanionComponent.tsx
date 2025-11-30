@@ -21,12 +21,9 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName,
 
         const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
         const [isSpeaking, setIsSpeaking] = useState(false);
-
         const [isMuted, setIsMuted] = useState(false);
-
-        const lottieRef = useRef<LottieRefCurrentProps>(null);
-
         const [messages, setMessages] = useState<SavedMessage[]>([]);
+        const lottieRef = useRef<LottieRefCurrentProps>(null);
 
         useEffect(() => {
             if (lottieRef) {
@@ -46,7 +43,7 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName,
 
             }
 
-            const onMessage = (message) => {
+            const onMessage = (message:Message) => {
                 if (message.type === 'transcript' && message.transcriptType === 'final') {
                     const newMessage = { role: message.role, content: message.transcript }
                     setMessages((prev) => [newMessage, ...prev])
@@ -66,15 +63,15 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName,
             vapi.on('speech-end', onSpeechEnd);
 
             return () => {
-                vapi.on('call-start', onCallStart);
-                vapi.on('call-end', onCallEnd);
-                vapi.on('message', onMessage);
-                vapi.on('error', onError);
-                vapi.on('speech-start', onSpeechStart);
-                vapi.on('speech-end', onSpeechEnd);
+                vapi.off('call-start', onCallStart);
+                vapi.off('call-end', onCallEnd);
+                vapi.off('message', onMessage);
+                vapi.off('error', onError);
+                vapi.off('speech-start', onSpeechStart);
+                vapi.off('speech-end', onSpeechEnd);
             }
 
-        }, [])
+        }, []);
 
         const toggleMicrophone = () => {
             const isMuted = vapi.isMuted();
@@ -87,10 +84,8 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName,
             setCallStatus(CallStatus.CONNECTING)
 
             const assitantOverrides = {
-                variableValues: {
-                    subject, topic, style
-                },
-                clientMessages: ['transcript'],
+                variableValues: {subject, topic, style},
+                clientMessages: ["transcript"],
                 serverMessages: [],
             }
 
@@ -114,7 +109,7 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName,
                             , callStatus === CallStatus.FINISHED || callStatus === CallStatus.INACTIVE ? 'opacity-100' : 'opacity-0',
                             callStatus === CallStatus.CONNECTING ? 'opacity-100 animate-pulse' : 'opacity-0'
                         )}>
-                            <Image src={`/icons/${subject}`} alt={subject} width={150} height={150} className="max-sm:w-fit" />
+                            <Image src={`/icons/${subject}.svg`} alt={subject} width={150} height={150} className="max-sm:w-fit" />
                         </div>
 
                         <div className={cn('absolute transition-opacity duration-1000',
@@ -156,13 +151,12 @@ const CompanionComponent = ({ companionId, subject, topic, name, userName,
                         if (message.role === 'assistant') {
                             return (
                                 <p key={index} className="max-sm:text-sm">
-                                    {name.split(' ')[0].replace('/[.,]/g,', ' ')
-                                    }: {index}
+                                {name.split(' ')[0].replace(/[.,]/g, ", '")}: {message.content}
                                 </p>
                             )
                         } else {
                             return <p key={index} className="text-primary max-sm:text-sm">
-                                {userName} : {index}
+                                {userName} : {message.content}
                             </p>
                         }
                     })}
